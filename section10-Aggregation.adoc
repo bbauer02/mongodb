@@ -158,6 +158,40 @@ db.sales.aggregate(
 )
 ----
 
+== Exemple : AGREGATION ET GROUPE
+[,]
+----
+// Exemple de $group
+// =================
+// Groupe tous les restaurants par type de cuisine,
+//  et affiche le nombre de restaurants, le total de notes déposées, et la moyenne
+
+db.restaurants.aggregate([
+
+    { $project: {
+        cuisine: 1,
+        grades: '$grades.score',
+        nbGrades: { $size: '$grades' },
+        gradesAvg: { $avg: '$grades.score' },
+    } },
+
+    // Obtenir la moyennes des restaurants, classés par type de cuisine
+
+    { $group: {
+        _id: '$cuisine',
+        nbRestaurants: { $sum: 1 },
+        nbNotes: { $sum: '$nbGrades'},
+        avgNotation: { $avg: '$gradesAvg' },
+    } },
+
+    // On refait un $match pour ne conserver les types de cuisine les mieux notées
+    
+    { $match: {
+        avgNotation: { $gte: 15 }
+    } }
+
+]);
+----
 == Exercice : collections Restaurants
 
 * On aimerait maintenant avoir tous les noms et id des restaurants par type de cuisine et quartier. Limitez l'affichage à deux résultats.
@@ -178,3 +212,101 @@ Indications : vous utiliserez l'opérateur suivant pour désimbriquer les élém
 * Récupérez le nombre de restaurants par quartier ainsi que leur type de cuisine qui contiennent AU MOINS un score supérieur ou égal à 30. Ordonnez le résultat par ordre décroissant de nombre de restaurant.
 
 * Cherchez les meilleurs restaurants en proposant une requête de votre choix, faites le par quartier. Puis donnez la moyenne des scores de ces restaurants.
+
+
+== Aggregate Avance
+
+Soit la collection suivantes dans la base de données products :
+
+[,]
+----
+use products
+
+db.createCollection('orders')
+
+db.orders.insertMany( [
+   { cust_id : "A123", amount : 500, status : "A" },
+   { cust_id : "A123", amount : 250, status : "A" },
+   { cust_id : "A123", amount : 200, status : "A" },
+   { cust_id : "A123", amount : 300, status : "B" },
+   { cust_id : "B123", amount : 500, status : "A" },
+   { cust_id : "B123", amount : 250, status : "A" },
+   { cust_id : "B125", amount : 200, status : "A" },
+   { cust_id : "B126", amount : 300, status : "B" },
+]);
+----
+
+Nous allons essayer de compter le nombre de cust_id identique en utilisant aggregate.
+
+
+[,]
+----
+db.orders.aggregate({ 
+  $group: { _id: "$cust_id", count: { $sum: 1 } } 
+});
+----
+
+=== Récupération des données
+
+Créez la base de données gym dans Mongo.
+
+Puis dézipper le dossier suivant Gymase.zip sur votre poste. Ce dossier se trouve dans le dossier data sur le serveur Git.
+
+Et enfin tapez les lignes de commande suivantes :
+
+[,javascript]
+----
+mongorestore -d gym -c gymnase Gymnases.bson
+mongorestore -d gym -c sportif Sportifs.bson
+
+#si vous avez un login/pass
+ mongorestore --username root --password example --authenticationDatabase admin --db gym -c sportif Sportifs.bson
+ mongorestore --username root --password example --authenticationDatabase admin --db gym -c gymnase Gymnases.bson
+
+----
+
+ Et contrôlez que les données sont bien importées dans votre base de données gym dans Mongo :
+
+[,javascript]
+----
+db.gymnase.count()
+// 28
+db.sportif.count()
+// 150
+
+// De même vérifier la structure
+db.gymnase.findOne()
+db.gymnase.count()
+----
+
+=== Exercices liste Gymnase & sportif
+
+==== Collection sportif
+
+* Calculez le nombre d'hommes et de femmes dans la collection sportif
+
+* Calculer le nombre d'hommes d'un côté et le nombre de femmes.
+
+==== Nom des sportifs
+
+Trouvez tous les noms des sportifs qui ne pratiquent pas de sport. Vous pouvez pour cela utiliser l'opérateur suivant :
+
+``{ a : { $exists : false } }``
+
+==== Calculez le nombre de sportifs
+
+* Calculez le nombre de sportifs jouant pour chaque sport.
+
+__Indications : Explorez la collection pour voir comment elle est structurée avant d'écrire un pipeline d'aggregation pour répondre à cette question.__
+
+==== Gymnases
+
+* Calculez le nombre de gymnases pour chaque ville.
+
+=== Exercice nombre de grade A dans la collection restaurant
+
+* Comptez le nombre de A par type de cuisine.
+
+=== Exercice augmentation
+
+Appliquez une augmenation de 10% pour chaque somme de groupe agrégé en fonction du ``cust_id``, sur les montants dont le status est ``A``.
