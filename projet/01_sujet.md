@@ -34,4 +34,9 @@ La liste des restaurants doit afficher le nom, type de cuisine et addresse compl
   BONUS
 5. utiliser l'API GOOGLE MAP pour placer sur une carte les Restaurants, ainsi que leur note et informations. 
 
+6. Formulaire pour rajouter un restaurant. 
+
+
+
+
 *Vous êtes libres sur les étapes d'implémenter des fonctionnalités supplémentaires comme la pagination des résultats, ou des critères de tri.*
