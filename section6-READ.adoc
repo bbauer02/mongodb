@@ -212,3 +212,38 @@ db.sales.find({$expr:{$gt:[ {
 * Recherchez tout les films qui ont une note (rating) supérieur à 9.2 et une durée inférieur à 100 minutes.
 * Recherchez les films qui ont pour genre : "Drama" et "Action"
 * Recherchez les films dont le nombre d'entrées a dépassé les pronostoques. (champs : visitors et exceededVisitors)
+
+== Requêtes avancées surles tableaux
+
+Dans une collection comportant des documents relatifs à des utilisateurs et leurs hobbies. 
+Nous pourrions faire une recherche dans ce document sur l'intitulé d'un hobby : 
+
+[,]
+----
+"hobbies": [
+  {
+    "title" : "sports",
+    "frequency" : 2
+  }
+]
+----
+
+Mais le champ "hobbies" est un tableau de documents embarqués.
+
+Pour trouver tous les hobbies dont le titre est "sports".
+
+[,]
+----
+db.users.find({"hobbies.title": "Sports"})
+----
+
+
+
+=== $size
+
+Liste des utilisateurs qui possède 3 Hobbits : 
+
+[,]
+----
+db.users.find({hobbies: {$size:3}})
+----
