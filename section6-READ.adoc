@@ -197,3 +197,18 @@ D'un point de vue alphabétique ici, le comparatif est vrai. Il faudra alors pr�
 ----
 db.sales.find({$expr:{$gt:["$volume", "$target"]}})
 ----
+
+[,]
+----
+db.sales.find({$expr:{$gt:[ {
+  $cond: {if: {$gte: ["$volume", 190]}, then: {$substract:["$volume", 10]}, else:"$volume"}
+}, "$target"]}})
+----
+
+
+=== Exercice
+
+* Import les données du fichier `05-boxoffice.json` 
+* Recherchez tout les films qui ont une note (rating) supérieur à 9.2 et une durée inférieur à 100 minutes.
+* Recherchez les films qui ont pour genre : "Drama" et "Action"
+* Recherchez les films dont le nombre d'entrées a dépassé les pronostoques. (champs : visitors et exceededVisitors)
